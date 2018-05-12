@@ -127,15 +127,6 @@ is(
       call message => http_tx->req->decoded_content || http_tx->req->content
     };
     event Note => sub {
-      call message => match qr/^500 /;
-    };
-    event Note => sub {
-      call message => http_tx->res->headers->as_string;
-    };
-    event Note => sub {
-      call message => http_tx->res->decoded_content || http_tx->res->content
-    };
-    event Note => sub {
       call message => "ok = 0";
     };
     etc;
@@ -156,15 +147,6 @@ is(
     };
     event Diag => sub {
       call message => http_tx->req->decoded_content || http_tx->req->content
-    };
-    event Diag => sub {
-      call message => match qr/^500 /;
-    };
-    event Diag => sub {
-      call message => http_tx->res->headers->as_string;
-    };
-    event Diag => sub {
-      call message => http_tx->res->decoded_content || http_tx->res->content
     };
     event Diag => sub {
       call message => "ok = 0";

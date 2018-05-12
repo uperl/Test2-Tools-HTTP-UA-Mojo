@@ -3,10 +3,10 @@ package Test2::Tools::HTTP::UA::Mojo;
 use strict;
 use warnings;
 use 5.01001;
-use Mojolicious 7.00;
+use Mojolicious 7.52;
+use HTTP::Request;
 use HTTP::Response;
 use HTTP::Message::PSGI;
-use Scope::Guard qw( guard );
 use parent 'Test2::Tools::HTTP::UA';
 
 # ABSTRACT: Mojo user agent wrapper for Test2::Tools::HTTP
@@ -64,35 +64,32 @@ sub request
 
   my $tx = Mojo::Transaction::HTTP->new(req => $mojo_req);
   
-  my $save_max_redirects = $self->ua->max_redirects;
-  my $guard = guard sub { $self->ua->max_redirects($save_max_redirects) };
-  
+  my $res;
+
   if($options{follow_redirects})
   {
-    $self->ua->max_redirects(10);
+    my $error;
+    $self->ua->start_p($tx)->then(sub {
+      my $tx = shift;
+      $res = HTTP::Response->parse($tx->res->to_string);
+      $res->request(HTTP::Request->parse($tx->req->to_string));
+    })->catch(sub {
+      $error = shift;
+    })->wait;
+    $self->error("connection error: $error") if $error;
   }
   else
   {
-    $self->ua->max_redirects(0);
+    $self->ua->start($tx);
+    my $err = $tx->error;
+    if($err && !$err->{code})
+    {
+      $self->error("connection error: " . $err->{message});
+    }
+    $res = HTTP::Response->parse($tx->res->to_string);
+    $res->request($req);
   }
-
-  warn "max_redirects = ", $self->ua->max_redirects;
-  $self->ua->start($tx);
-
-  my $err = $tx->error;
   
-  if($err && !$err->{code})
-  {
-    my $res = HTTP::Response->new(500, 'Internal Error');
-    $res->header("Client-Warning" => $err->{message});
-    return $res;
-    
-  }
-
-  my $res = HTTP::Response->parse(
-    $tx->res->to_string
-  );
-  $res->request($req);
   $res;
 }
 

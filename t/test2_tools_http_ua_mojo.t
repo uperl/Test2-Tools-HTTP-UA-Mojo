@@ -20,6 +20,7 @@ get '/bar/index.html' => sub {
 };
 
 my $t = Test::Mojo->new;
+$t->ua->max_redirects(10);
 
 app->log->unsubscribe('message');
 app->log->on(message => sub {
