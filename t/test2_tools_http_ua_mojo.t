@@ -9,6 +9,16 @@ get '/foo' => sub {
   $c->render(text => "hello world\n");
 };
 
+get '/bar' => sub {
+  my($c) = @_;
+  $c->redirect_to('/bar/index.html');
+};
+
+get '/bar/index.html' => sub {
+  my($c) = @_;
+  $c->render(text => "index text\n");
+};
+
 my $t = Test::Mojo->new;
 
 app->log->unsubscribe('message');
@@ -23,6 +33,8 @@ $t->get_ok('/foo')
 
 http_ua($t->ua);
 
+note "http_base_url = ", http_base_url;
+
 isa_ok( http_ua, 'Mojo::UserAgent' );
 
 http_request(
@@ -32,6 +44,37 @@ http_request(
     http_content "hello world\n";
   }
 );
-  
+
+http_tx->note;  
+
+http_request(
+  GET('/bar'),
+  http_response {
+    http_code 302;
+    http_location '/bar/index.html';
+  },
+);
+
+http_tx->note;
+
+http_request(
+  GET(http_tx->location),
+  http_response {
+    http_code 200;
+    http_content "index text\n";
+  },
+);
+
+http_tx->note;
+
+http_request(
+  [ GET('/bar'), follow_redirects => 1 ],
+  http_response {
+    http_code 200;
+    http_content "index text\n";
+  },
+);
+
+http_tx->note;
 
 done_testing

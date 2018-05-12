@@ -6,6 +6,7 @@ use 5.01001;
 use Mojolicious 7.00;
 use HTTP::Response;
 use HTTP::Message::PSGI;
+use Scope::Guard qw( guard );
 use parent 'Test2::Tools::HTTP::UA';
 
 # ABSTRACT: Mojo user agent wrapper for Test2::Tools::HTTP
@@ -39,6 +40,8 @@ to use L<Mojo::UserAgent> as a user agent for testing.
 sub instrument
 {
   my($self) = @_;
+  $self->apps->base_url($self->ua->server->url->to_string);
+  warn "max redirects", $self->ua->max_redirects;
 }
 
 sub request
@@ -47,7 +50,8 @@ sub request
 
   require Mojo::Transaction::HTTP;
   require Mojo::Message::Request;
-  
+  require Mojo::URL;
+
   # Add the User-Agent header to the HTTP::Request
   # so that T2::T::HTTP can see it in diagnostics
   $req->header('User-Agent' => $self->ua->transactor->name)
@@ -55,9 +59,24 @@ sub request
 
   my $mojo_req = Mojo::Message::Request->new;
   $mojo_req->parse($req->to_psgi);
+  $mojo_req->url(Mojo::URL->new($req->uri.''))
+    if $req->uri !~ /^\//;
 
   my $tx = Mojo::Transaction::HTTP->new(req => $mojo_req);
   
+  my $save_max_redirects = $self->ua->max_redirects;
+  my $guard = guard sub { $self->ua->max_redirects($save_max_redirects) };
+  
+  if($options{follow_redirects})
+  {
+    $self->ua->max_redirects(10);
+  }
+  else
+  {
+    $self->ua->max_redirects(0);
+  }
+
+  warn "max_redirects = ", $self->ua->max_redirects;
   $self->ua->start($tx);
   
   if(my $err = $tx->error)
@@ -68,9 +87,11 @@ sub request
   }
   else
   {
-    return HTTP::Response->parse(
+    my $res = HTTP::Response->parse(
       $tx->res->to_string
     );
+    $res->request($req);
+    return $res;
   }
 }
 
