@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use 5.01001;
 use Mojolicious 7.52;
+use Mojo::URL;
+use IO::Socket::INET;
 use HTTP::Request;
 use HTTP::Response;
 use HTTP::Message::PSGI;
@@ -41,7 +43,45 @@ sub instrument
 {
   my($self) = @_;
   $self->apps->base_url($self->ua->server->url->to_string);
-  warn "max redirects", $self->ua->max_redirects;
+  
+  my $proxy_psgi_app = sub {
+    my $env = shift;
+
+    my $app = $self->apps->uri_to_app($env->{REQUEST_URI})->{app};
+    $app
+      ? $app->($env)
+      : [ 404, [ 'Content-Type' => 'text/plain' ], [ '404 Not Found' ] ];
+  };
+  
+  my $proxy_mojo_app = Mojolicious->new;
+  $proxy_mojo_app->plugin('Mojolicious::Plugin::MountPSGI' => { '/' => $proxy_psgi_app });
+  
+  my $proxy_url = Mojo::URL->new("http://127.0.0.1");
+  $proxy_url->port(do {
+    IO::Socket::INET->new(
+      Listen    => 5,
+      LocalAddr => '127.0.0.1',
+    )->sockport;
+  });
+  
+  my $proxy_mojo_server = $self->{proxy_mojo_server} = Mojo::Server::Daemon->new(
+    ioloop => $self->ua->ioloop,
+    silent => 1,
+    app    => $proxy_mojo_app,
+    listen => ["$proxy_url"],
+  );
+  $proxy_mojo_server->start;
+  
+  my $old_proxy = $self->ua->proxy;
+  my $new_proxy = Test2::Tools::HTTP::UA::Mojo::Proxy->new(
+    apps           => $self->apps,
+    http           => $old_proxy->http,
+    https          => $old_proxy->https,
+    not            => $old_proxy->not,
+    apps_proxy_url => $proxy_url,
+  );
+  
+  $self->ua->proxy($new_proxy);
 }
 
 sub request
@@ -50,7 +90,6 @@ sub request
 
   require Mojo::Transaction::HTTP;
   require Mojo::Message::Request;
-  require Mojo::URL;
 
   # Add the User-Agent header to the HTTP::Request
   # so that T2::T::HTTP can see it in diagnostics
@@ -91,6 +130,28 @@ sub request
   }
   
   $res;
+}
+
+package Test2::Tools::HTTP::UA::Mojo::Proxy;
+
+use Mojo::Base 'Mojo::UserAgent::Proxy';
+
+has 'apps';
+has 'apps_proxy_url';
+
+sub prepare
+{
+  my ($self, $tx) = @_;
+  
+  if($self->apps->uri_to_app($tx->req->url.""))
+  {
+    $tx->req->proxy($self->apps_proxy_url);
+    return;
+  }
+  else
+  {
+    return $self->SUPER::prepare($tx);
+  }
 }
 
 1;

@@ -14,9 +14,14 @@ $modules{$_} = $_ for qw(
   EV
   ExtUtils::MakeMaker
   HTTP::Message
+  HTTP::Request
   Mojolicious
+  Mojolicious::Plugin::MountPSGI
   Plack
+  Test2::Require::Internet
+  Test2::Require::Module
   Test2::Tools::HTTP
+  Test2::Tools::JSON::Pointer
   Test2::V0
   parent
 );

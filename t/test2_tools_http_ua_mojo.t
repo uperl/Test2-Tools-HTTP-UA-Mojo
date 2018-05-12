@@ -87,6 +87,29 @@ http_request(
 
 http_tx->note;
 
+psgi_app_add 'http://my1.test' => sub { [ 200, [ 'Content-Type' => 'text/plain' ], [ "App the first\n" ] ] };
+psgi_app_add 'http://my2.test' => sub { [ 200, [ 'Content-Type' => 'text/plain' ], [ "App the second\n" ] ] };
+
+http_request(
+  GET('http://my1.test'),
+  http_response {
+    http_code 200;
+    http_content "App the first\n";
+  },
+);
+
+http_tx->note;
+
+http_request(
+  GET('http://my2.test'),
+  http_response {
+    http_code 200;
+    http_content "App the second\n";
+  },
+);
+
+http_tx->note;
+
 done_testing
 
 __DATA__
