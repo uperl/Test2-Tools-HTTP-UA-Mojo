@@ -77,4 +77,25 @@ http_request(
 
 http_tx->note;
 
+http_request(
+  GET('/missing'),
+  http_response {
+    http_code 404;
+  },
+);
+
+http_tx->note;
+
 done_testing
+
+__DATA__
+
+@@ not_found.html.ep
+<html>
+  <head>
+    <title>Not Found</title>
+  </head>
+  <body>
+    <p>Not Found</p>
+  </body>
+</html>

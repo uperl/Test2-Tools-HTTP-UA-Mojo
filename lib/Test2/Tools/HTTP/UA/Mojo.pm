@@ -78,21 +78,22 @@ sub request
 
   warn "max_redirects = ", $self->ua->max_redirects;
   $self->ua->start($tx);
+
+  my $err = $tx->error;
   
-  if(my $err = $tx->error)
+  if($err && !$err->{code})
   {
     my $res = HTTP::Response->new(500, 'Internal Error');
     $res->header("Client-Warning" => $err->{message});
     return $res;
+    
   }
-  else
-  {
-    my $res = HTTP::Response->parse(
-      $tx->res->to_string
-    );
-    $res->request($req);
-    return $res;
-  }
+
+  my $res = HTTP::Response->parse(
+    $tx->res->to_string
+  );
+  $res->request($req);
+  $res;
 }
 
 1;
