@@ -47,7 +47,7 @@ sub instrument
   my $proxy_psgi_app = sub {
     my $env = shift;
 
-    my $app = $self->apps->uri_to_app($env->{REQUEST_URI})->{app};
+    my $app = $self->apps->uri_to_app($env->{REQUEST_URI});
     $app
       ? $app->($env)
       : [ 404, [ 'Content-Type' => 'text/plain' ], [ '404 Not Found' ] ];
