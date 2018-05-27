@@ -3,12 +3,6 @@ package Test2::Tools::HTTP::UA::Mojo;
 use strict;
 use warnings;
 use 5.01001;
-use Mojolicious 7.52;
-use Mojo::URL;
-use IO::Socket::INET;
-use HTTP::Request;
-use HTTP::Response;
-use HTTP::Message::PSGI;
 use parent 'Test2::Tools::HTTP::UA';
 
 # ABSTRACT: Mojo user agent wrapper for Test2::Tools::HTTP
@@ -39,10 +33,33 @@ to use L<Mojo::UserAgent> as a user agent for testing.
 
 =cut
 
+sub new
+{
+  my $class = shift;
+
+  # we want to require tese on demand here when the wrapper gets
+  # created rather than use them up at the top, because this .pm
+  # gets used every time Test2::Tool::HTTP::UA gets used, even
+  # if we aren't using Mojolicious in the .t file.
+  require Mojolicious;
+  require Mojo::URL;
+  require IO::Socket::INET;
+  require HTTP::Request;
+  require HTTP::Response;
+  require HTTP::Message::PSGI;
+  require Test2::Tools::HTTP::UA::Mojo::Proxy;
+  
+  $class->SUPER::new(@_);
+}
+
 sub instrument
 {
   my($self) = @_;
-  $self->apps->base_url($self->ua->server->url->to_string);
+
+  if($self->ua->server->app)
+  {
+    $self->apps->base_url($self->ua->server->url->to_string);
+  }
   
   my $proxy_psgi_app = sub {
     my $env = shift;
@@ -132,27 +149,7 @@ sub request
   $res;
 }
 
-package Test2::Tools::HTTP::UA::Mojo::Proxy;
-
-use Mojo::Base 'Mojo::UserAgent::Proxy';
-
-has 'apps';
-has 'apps_proxy_url';
-
-sub prepare
-{
-  my ($self, $tx) = @_;
-  
-  if($self->apps->uri_to_app($tx->req->url.""))
-  {
-    $tx->req->proxy($self->apps_proxy_url);
-    return;
-  }
-  else
-  {
-    return $self->SUPER::prepare($tx);
-  }
-}
+__PACKAGE__->register('Mojo::UserAgent', 'instance');
 
 1;
 
