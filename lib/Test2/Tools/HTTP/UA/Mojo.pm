@@ -149,6 +149,7 @@ sub request
   # trim weird trailing stuff
   my $message = $res->message;
   $message =~ s/\s*$//;
+  $res->message($message);
   
   $res;
 }
