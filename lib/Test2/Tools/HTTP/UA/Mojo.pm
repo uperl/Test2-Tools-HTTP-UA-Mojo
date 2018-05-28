@@ -146,6 +146,10 @@ sub request
     $res->request($req);
   }
   
+  # trim weird trailing stuff
+  my $message = $res->message;
+  $message =~ s/\s*$//;
+  
   $res;
 }
 
