@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+  - Bump requirement of Mojolicious::Plugin::MountPSGI to 0.13 (eserte++ gh#1)
 
 0.02      2018-06-02 15:50:10 -0400
   - First CPAN release
