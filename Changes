@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+  - Fix compatability with latest version of Test2::Suite (gh#2)
 
 0.03      2018-06-04 07:16:20 -0400
   - Bump requirement of Mojolicious::Plugin::MountPSGI to 0.13 (eserte++ gh#1)
