@@ -27,6 +27,8 @@ jobs:
     - env: CIP_TAG=5.14
     - env: CIP_TAG=5.12
     - env: CIP_TAG=5.10.1
+  allow_failures:
+    - env: CIP_TAG=5.10.1
 
 cache:
   directories:
