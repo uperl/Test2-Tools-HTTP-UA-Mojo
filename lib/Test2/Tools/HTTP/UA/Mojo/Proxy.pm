@@ -2,6 +2,7 @@ package Test2::Tools::HTTP::UA::Mojo::Proxy;
 
 use strict;
 use warnings;
+use 5.014;
 use Mojo::Base 'Mojo::UserAgent::Proxy';
 
 # ABSTRACT: Proxy class for Test2::Tools::HTTP::UA::Mojo
