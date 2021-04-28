@@ -1,24 +1,26 @@
-# Test2::Tools::HTTP::UA::Mojo [![Build Status](https://secure.travis-ci.org/plicease/Test2-Tools-HTTP-UA-Mojo.png)](http://travis-ci.org/plicease/Test2-Tools-HTTP-UA-Mojo)
+# Test2::Tools::HTTP::UA::Mojo ![linux](https://github.com/uperl/Test2-Tools-HTTP-UA-Mojo/workflows/linux/badge.svg) ![macos](https://github.com/uperl/Test2-Tools-HTTP-UA-Mojo/workflows/macos/badge.svg) ![windows](https://github.com/uperl/Test2-Tools-HTTP-UA-Mojo/workflows/windows/badge.svg) ![cygwin](https://github.com/uperl/Test2-Tools-HTTP-UA-Mojo/workflows/cygwin/badge.svg) ![msys2-mingw](https://github.com/uperl/Test2-Tools-HTTP-UA-Mojo/workflows/msys2-mingw/badge.svg)
 
 Mojo user agent wrapper for Test2::Tools::HTTP
 
 # SYNOPSIS
 
-    use Test2::Tools::HTTP;
-    use Mojo::UserAgent;
-    
-    http_ua( Mojo::UserAgent->new )
-    
-    http_request(
-      GET('http://example.test'),
-      http_response {
-        http_code 200;
-        http_response match qr/something/;
-        ...
-      }
-    );;
-    
-    done_testing;
+```perl
+use Test2::Tools::HTTP;
+use Mojo::UserAgent;
+
+http_ua( Mojo::UserAgent->new )
+
+http_request(
+  GET('http://example.test'),
+  http_response {
+    http_code 200;
+    http_response match qr/something/;
+    ...
+  }
+);;
+
+done_testing;
+```
 
 # DESCRIPTION
 
