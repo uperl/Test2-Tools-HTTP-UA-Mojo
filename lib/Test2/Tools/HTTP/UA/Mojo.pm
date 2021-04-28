@@ -48,7 +48,7 @@ sub new
   require HTTP::Response;
   require HTTP::Message::PSGI;
   require Test2::Tools::HTTP::UA::Mojo::Proxy;
-  
+
   $class->SUPER::new(@_);
 }
 
@@ -60,7 +60,7 @@ sub instrument
   {
     $self->apps->base_url($self->ua->server->url->to_string);
   }
-  
+
   my $proxy_psgi_app = sub {
     my $env = shift;
 
@@ -69,10 +69,10 @@ sub instrument
       ? $app->($env)
       : [ 404, [ 'Content-Type' => 'text/plain' ], [ '404 Not Found' ] ];
   };
-  
+
   my $proxy_mojo_app = Mojolicious->new;
   $proxy_mojo_app->plugin('Mojolicious::Plugin::MountPSGI' => { '/' => $proxy_psgi_app });
-  
+
   my $proxy_url = Mojo::URL->new("http://127.0.0.1");
   $proxy_url->port(do {
     IO::Socket::INET->new(
@@ -80,7 +80,7 @@ sub instrument
       LocalAddr => '127.0.0.1',
     )->sockport;
   });
-  
+
   my $proxy_mojo_server = $self->{proxy_mojo_server} = Mojo::Server::Daemon->new(
     ioloop => $self->ua->ioloop,
     silent => 1,
@@ -88,7 +88,7 @@ sub instrument
     listen => ["$proxy_url"],
   );
   $proxy_mojo_server->start;
-  
+
   my $old_proxy = $self->ua->proxy;
   my $new_proxy = Test2::Tools::HTTP::UA::Mojo::Proxy->new(
     apps           => $self->apps,
@@ -97,7 +97,7 @@ sub instrument
     not            => $old_proxy->not,
     apps_proxy_url => $proxy_url,
   );
-  
+
   $self->ua->proxy($new_proxy);
 }
 
@@ -119,7 +119,7 @@ sub request
     if $req->uri !~ /^\//;
 
   my $tx = Mojo::Transaction::HTTP->new(req => $mojo_req);
-  
+
   my $res;
 
   if($options{follow_redirects})
@@ -145,12 +145,12 @@ sub request
     $res = HTTP::Response->parse($tx->res->to_string);
     $res->request($req);
   }
-  
+
   # trim weird trailing stuff
   my $message = $res->message;
   $message =~ s/\s*$//;
   $res->message($message);
-  
+
   $res;
 }
 
