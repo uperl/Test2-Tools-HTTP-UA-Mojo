@@ -2,7 +2,7 @@ package Test2::Tools::HTTP::UA::Mojo;
 
 use strict;
 use warnings;
-use 5.014;
+use 5.016;
 use parent 'Test2::Tools::HTTP::UA';
 
 # ABSTRACT: Mojo user agent wrapper for Test2::Tools::HTTP
