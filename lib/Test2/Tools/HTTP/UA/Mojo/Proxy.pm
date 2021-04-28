@@ -25,7 +25,7 @@ has 'apps_proxy_url';
 sub prepare
 {
   my ($self, $tx) = @_;
-  
+
   if($self->apps->uri_to_app($tx->req->url.""))
   {
     $tx->req->proxy($self->apps_proxy_url);

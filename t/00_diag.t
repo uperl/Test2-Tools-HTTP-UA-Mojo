@@ -15,6 +15,7 @@ $modules{$_} = $_ for qw(
   ExtUtils::MakeMaker
   HTTP::Message
   HTTP::Request
+  List::SomeUtils
   Mojolicious
   Mojolicious::Plugin::MountPSGI
   Plack
