@@ -1,4 +1,4 @@
-# Test2::Tools::HTTP::UA::Mojo ![static](https://github.com/uperl/Test2-Tools-HTTP-UA-Mojo/workflows/static/badge.svg) ![linux](https://github.com/uperl/Test2-Tools-HTTP-UA-Mojo/workflows/linux/badge.svg) ![macos](https://github.com/uperl/Test2-Tools-HTTP-UA-Mojo/workflows/macos/badge.svg) ![windows](https://github.com/uperl/Test2-Tools-HTTP-UA-Mojo/workflows/windows/badge.svg) ![cygwin](https://github.com/uperl/Test2-Tools-HTTP-UA-Mojo/workflows/cygwin/badge.svg) ![msys2-mingw](https://github.com/uperl/Test2-Tools-HTTP-UA-Mojo/workflows/msys2-mingw/badge.svg)
+# Test2::Tools::HTTP::UA::Mojo ![static](https://github.com/uperl/Test2-Tools-HTTP-UA-Mojo/workflows/static/badge.svg) ![linux](https://github.com/uperl/Test2-Tools-HTTP-UA-Mojo/workflows/linux/badge.svg) ![macos](https://github.com/uperl/Test2-Tools-HTTP-UA-Mojo/workflows/macos/badge.svg) ![windows](https://github.com/uperl/Test2-Tools-HTTP-UA-Mojo/workflows/windows/badge.svg)
 
 Mojo user agent wrapper for Test2::Tools::HTTP
 
