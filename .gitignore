@@ -1,2 +1,4 @@
 /Test2-Tools-HTTP-UA-Mojo-*
 /.build
+*.old
+*.orig
